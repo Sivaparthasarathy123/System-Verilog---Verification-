@@ -40,6 +40,8 @@ The testbenches are self-checking, reusable, and scalable.
 
 Tools & Technologies:
 
-Language: SystemVerilog
-Simulation Tools: EDA Playground
-Methodology: SystemVerilog Testbench 
+Language: SystemVerilog.
+
+Simulation Tools: EDA Playground.
+
+Methodology: SystemVerilog Testbench. 
