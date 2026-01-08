@@ -1,16 +1,16 @@
 // Synchronous FIFO Interface
-interface fifo_if #(parameter DATA_WIDTH = 8) 
+interface fifo_if #(parameter DEPTH = 8, WIDTH = 8) 
   (input logic clk, 
    input logic rst);
   
   logic w_en, r_en;
-  logic [DATA_WIDTH-1:0] data_in;
-  logic [DATA_WIDTH-1:0] data_out;
+  logic [WIDTH-1:0] data_in;
+  logic [WIDTH-1:0] data_out;
   logic full, empty;
 
   // Clocking Block 
   clocking cb @(posedge clk);
-    default input #2ns output #2ns;
+    default input #1ns output #1ns;
   
     output data_in;
     output w_en;
