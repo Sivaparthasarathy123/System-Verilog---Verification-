@@ -5,19 +5,19 @@
 `include "monitor.sv"
 `include "scoreboard.sv"
 
-class environment;
-  transaction trans;
-  generator gen;
-  driver driv;
-  monitor mon;
-  scoreboard score;
+class environment #(DEPTH, WIDTH);
+  transaction #(DEPTH, WIDTH) trans;
+  generator #(DEPTH, WIDTH) gen;
+  driver #(DEPTH, WIDTH) driv;
+  monitor #(DEPTH, WIDTH) mon;
+  scoreboard #(DEPTH, WIDTH) score;
   
   mailbox gen2drv;
   mailbox mon2scb;
   
-  virtual fifo_if intr;
+  virtual fifo_if #(DEPTH, WIDTH) intr;
   
-  function new(virtual fifo_if intr);
+  function new(virtual fifo_if #(DEPTH, WIDTH) intr);
     this.intr = intr;
     
     gen2drv=new();
@@ -35,8 +35,7 @@ class environment;
       driv.main();
       mon.main();
       score.main();
-    join
-    
+    join  
   endtask
 endclass
     
