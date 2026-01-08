@@ -1,6 +1,6 @@
 // Synchronous FIFO Generator
-class generator;
-  transaction trans;
+class generator #(DEPTH, WIDTH);
+  transaction #(DEPTH, WIDTH) trans;
   
   mailbox gen2drv;
   
@@ -9,15 +9,29 @@ class generator;
   endfunction
   
   task main;
-    transaction trans;
-    
-    repeat (5) begin
+    $display(" Generator Class ");
+    // --- Write Untill Full ---
+    repeat (3) begin
       trans = new();
-      trans.randomize();
-      $display("[%0t] Randomized Inputs: Data In = %0d", $time, trans.data_in);
-      
+      trans.randomize() with {w_en == 1; r_en == 0;};
+       $display("[%0t] Randomized Inputs: Write Enable = %0d| Read Enable = %0d| Data In = %0d", $time, trans.w_en, trans.r_en, trans.data_in);
       gen2drv.put(trans);
-      trans.display("Generator Class");
     end
+
+    // --- Read until Empty ---
+    repeat (3) begin
+      trans = new();
+      trans.randomize() with {w_en == 0; r_en == 1;};
+       $display("[%0t] Randomized Inputs: Write Enable = %0d| Read Enable = %0d| Data In = %0d", $time, trans.w_en, trans.r_en, trans.data_in);
+      gen2drv.put(trans);
+    end
+
+    // --- Read and Write ---
+    repeat (3) begin
+      trans = new();
+      trans.randomize() with {w_en == 1; r_en == 1;};
+       $display("[%0t] Randomized Inputs: Write Enable = %0d| Read Enable = %0d| Data In = %0d", $time, trans.w_en, trans.r_en, trans.data_in);
+      gen2drv.put(trans);
+   end
   endtask
 endclass
