@@ -5,10 +5,13 @@
 module testbench;
   bit clk;
   bit rst;
-
-  fifo_if intr(clk, rst); 
   
-  test t(intr);
+  parameter DEPTH = 8;
+  parameter WIDTH = 8;
+
+  fifo_if #(DEPTH, WIDTH) intr(clk, rst); 
+  
+  test #(DEPTH, WIDTH) t(intr);
   
   synchronous_FIFO inst (
     .clk(clk),
@@ -19,6 +22,7 @@ module testbench;
     .data_out(intr.data_out),
     .full(intr.full),
     .empty(intr.empty) );
+  
   
   initial begin
     $dumpfile("Waveform.vcd");
@@ -34,6 +38,6 @@ module testbench;
     rst = 0; 
   end
 
-  initial #500 $finish;
+  initial #1000 $finish;
   
 endmodule
