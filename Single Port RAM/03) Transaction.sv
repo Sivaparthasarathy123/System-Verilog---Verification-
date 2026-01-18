@@ -1,9 +1,13 @@
 // Transaction - Single Port RAM
-class ram_transaction;
+class ram_transaction #(parameter DEPTH = 8, WIDTH = 8);
     rand bit w_en;
-    rand bit [2:0] addr;
-    rand bit [7:0] data_in;
-    bit [7:0] data_out;
+    rand bit [$clog2(DEPTH)-1:0] addr;
+    rand bit [WIDTH-1:0] data_in;
+    bit      [WIDTH-1:0] data_out;
+  
+  function void display (string name);
+    $display("---%s---",name);
+    $display("Time = %0t | Write Enable = %0b | Address = %0d | Data In = %d | Data Out = %0d", $time, w_en, addr, data_in, data_out);
+  endfunction
 
-    constraint addr_range { addr inside {[0:7]}; }
 endclass
