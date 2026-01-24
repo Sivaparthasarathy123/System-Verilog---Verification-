@@ -1,5 +1,5 @@
 // Genertor - Single Port RAM
-class generator #(parameter DEPTH = 8, WIDTH = 8);
+class generator #(DEPTH, WIDTH);
     ram_transaction #(DEPTH, WIDTH) trans;
     mailbox gen2driv;
     event ended; 
@@ -11,11 +11,11 @@ class generator #(parameter DEPTH = 8, WIDTH = 8);
     task main();
         repeat(15) begin
             trans = new();
-            if(!trans.randomize())
-              $display("Randomization failed");
+          trans.randomize() with {w_en == 1;};
             gen2driv.put(trans);
-            trans.display("--- Generator Class ---");
+          trans.display("\n--- Generator Class ---");
+          @ended;
         end
-        -> ended; 
+         
     endtask
 endclass
