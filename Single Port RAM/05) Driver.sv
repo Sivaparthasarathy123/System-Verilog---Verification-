@@ -9,15 +9,14 @@ class driver #(DEPTH, WIDTH);
     endfunction
 
     task main();
-        forever begin
+        repeat (15) begin
             ram_transaction trans;
             gen2driv.get(trans);
-            @(posedge vif.clk);
-            vif.w_en    <= trans.w_en;
-            vif.addr    <= trans.addr;
-            vif.data_in <= trans.data_in;
+            @(vif.cb1);
+            vif.cb1.w_en    <= trans.w_en;
+            vif.cb1.addr    <= trans.addr;
+            vif.cb1.data_in <= trans.data_in;
             trans.display("--- Driver Class ---");
-            $display("[Driver] Applied Addr: %0d", trans.addr);
         end
     endtask
 endclass
