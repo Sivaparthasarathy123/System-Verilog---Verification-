@@ -9,10 +9,9 @@ class monitor #(DEPTH, WIDTH);
     endfunction
 
     task main();
-        forever begin
+        repeat (15) begin
             ram_transaction trans = new();
-            @(posedge vif.clk);
-            #1; 
+            @(vif.cb2);
             trans.w_en     = vif.w_en;
             trans.addr     = vif.addr;
             trans.data_in  = vif.data_in;
