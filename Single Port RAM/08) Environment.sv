@@ -6,6 +6,8 @@
 `include "scoreboard.sv"
 
 class environment #(DEPTH, WIDTH);
+  
+  event ended;
     // Instantiate components
     generator  #(DEPTH, WIDTH) gen;
     driver     #(DEPTH, WIDTH) driv;
@@ -27,6 +29,9 @@ class environment #(DEPTH, WIDTH);
         driv = new(vif, gen2driv);
         mon  = new(vif, mon2scb);
         scb  = new(mon2scb);
+      
+      gen.ended=ended;
+      scb.ended=ended;
     endfunction
 
     task run();
