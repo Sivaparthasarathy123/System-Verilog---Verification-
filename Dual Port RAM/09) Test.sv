@@ -6,7 +6,6 @@ program test #(DEPTH, WIDTH)(ram_if vif);
     initial begin
         env = new(vif);
         env.run();
-        @(env.gen.ended); 
         #20; 
         $display("--- Final Verification Success ---");
         $finish;
