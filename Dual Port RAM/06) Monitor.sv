@@ -9,28 +9,19 @@ class monitor #(DEPTH, WIDTH);
     endfunction
 
     task main();
-        repeat (5) begin
+        repeat (15) begin
             ram_transaction trans = new();
-            @(posedge vif.clk);
-            #1; 
+            @(vif.cb2); 
             trans.w_en_a     = vif.w_en_a;
             trans.addr_a     = vif.addr_a;
             trans.data_in_a  = vif.data_in_a;
             trans.data_out_a = vif.data_out_a;
-            mon2scb.put(trans);
-            trans.display("--- Monitor Class ---");
-        end
-      
-        repeat (5) begin
-            ram_transaction trans = new();
-            @(posedge vif.clk);
-            #1; 
             trans.w_en_b     = vif.w_en_b;
             trans.addr_b     = vif.addr_b;
             trans.data_in_b  = vif.data_in_b;
             trans.data_out_b = vif.data_out_b;
             mon2scb.put(trans);
-            trans.display("--- Monitor Class ---");
+          trans.display("--- Monitor Class---");
         end
     endtask
 endclass
