@@ -9,15 +9,21 @@ module dual_port_ram #(parameter DEPTH = 8, WIDTH = 8)(
   reg [WIDTH-1:0] mem [0:DEPTH-1];
 
   always @(posedge clk) begin
-    // PORT A
-    if(w_en_a)
-        mem[addr_a] <= data_in_a;
-    data_out_a <= mem[addr_a];
+        // READ FIRST
+        data_out_a <= mem[addr_a];
+        data_out_b <= mem[addr_b];
 
-    // PORT B
-    if(w_en_b)
-        mem[addr_b] <= data_in_b;
-    data_out_b <= mem[addr_b]; 
-  end
+        // WRITE AFTER READ
+        if (w_en_a && w_en_b && addr_a == addr_b) begin
+            // same address means Port B writes
+            mem[addr_a] <= data_in_b;
+        end 
+        else begin
+            if (w_en_a) 
+                mem[addr_a] <= data_in_a;
+            if (w_en_b)
+                mem[addr_b] <= data_in_b;
+        end
+    end
 
 endmodule
