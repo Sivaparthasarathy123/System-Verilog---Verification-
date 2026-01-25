@@ -15,6 +15,8 @@ class environment #(DEPTH, WIDTH);
     // Mailboxes 
     mailbox gen2driv;
     mailbox mon2scb;
+  
+    event ended;
 
     virtual ram_if #(DEPTH, WIDTH) vif;
 
@@ -27,6 +29,10 @@ class environment #(DEPTH, WIDTH);
         driv = new(vif, gen2driv);
         mon  = new(vif, mon2scb);
         scb  = new(mon2scb);
+      
+      gen.ended=ended;
+      scb.ended=ended;
+      
     endfunction
 
     task run();
