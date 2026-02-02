@@ -12,31 +12,26 @@ class monitor #(DEPTH, WIDTH);
 
   task mon_main;
     transaction #(DEPTH, WIDTH) trans;
-    repeat (10) begin
+    repeat (20) begin
         trans = new();
-      @(intr.wr_cb); 
+       @(intr.wr_cb1); 
     
         trans.w_rst   = intr.w_rst;
         trans.w_en    = intr.w_en; 
         trans.data_in = intr.data_in;
         trans.full    = intr.full;
-    
-        mon2scb.put(trans);
-        trans.display(" Value to Monitor ");
-      end
-    
-    repeat (10) begin
-       trans = new();
-      @(intr.rd_cb);
+      
+       @(intr.rd_cb1);
        
        trans.r_rst    = intr.r_rst;
        trans.r_en     = intr.r_en; 
        trans.data_out = intr.data_out;
-       trans.empty    = intr.rd_cb.empty;
-       
-       mon2scb.put(trans);
-       trans.display(" Value to Monitor ");
-     end
+       trans.empty    = intr.empty;
+    
+        mon2scb.put(trans);
+        trans.display(" Monitor Class ");
+      end
+
   endtask
 endclass
 
