@@ -12,7 +12,7 @@ class driver #(DEPTH, WIDTH);
   
   task drv_main;
     transaction #(DEPTH, WIDTH) trans;
-    repeat (10) begin
+    repeat (20) begin
         gen2drv.get(trans);
         if (trans.w_en) begin
             @(intr.wr_cb);
@@ -20,18 +20,14 @@ class driver #(DEPTH, WIDTH);
             intr.wr_cb.w_en    <= trans.w_en;
             intr.wr_cb.data_in <= trans.data_in;
         end
-      trans.display(" Write Value to Driver ");
-    end
-    repeat (10) begin
-      gen2drv.get(trans);
-        if (trans.r_en) begin
+       if (trans.r_en) begin
             @(intr.rd_cb);
             intr.rd_cb.r_rst <= trans.r_rst;
             intr.rd_cb.r_en  <= trans.r_en; 
             intr.data_out  <= trans.data_out;
-          
-        end
-      trans.display("  Read Value to Driver ");
+         trans.display(" Driver class ");
+       end
+
     end
   endtask
 
