@@ -1,13 +1,13 @@
 // Synchronous FIFO
-module synchronous_FIFO #(parameter DEPTH = 8, DATA_WIDTH = 8)(
+module synchronous_FIFO #(parameter DEPTH = 8, WIDTH = 8)(
   input clk, rst,
   input w_en, r_en,
-  input [DATA_WIDTH-1:0] data_in,
-  output reg [DATA_WIDTH-1:0] data_out,
+  input [WIDTH-1:0] data_in,
+  output reg [WIDTH-1:0] data_out,
   output reg full, empty);
 
-  reg [DATA_WIDTH-1:0] w_ptr,r_ptr;
-  reg [DATA_WIDTH-1:0] fifo[DEPTH-1:0];
+  reg [$clog2(DEPTH)-1:0] w_ptr,r_ptr;
+  reg [WIDTH-1:0] fifo[DEPTH-1:0];
 
   always@(posedge clk)begin
     if(rst)begin
