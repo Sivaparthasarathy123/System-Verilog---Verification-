@@ -1,5 +1,5 @@
 // Asynchronous FIFO Verification - Testbench
-`timescale 1ns/1ps
+`timescale 1ns/1ns
 `include "interface.sv"
 `include "test.sv"
 
@@ -28,14 +28,13 @@ module asynchronous_fifo_tb();
     intr.r_clk = 0;
   end
   always #5 intr.w_clk = ~intr.w_clk;
-  always #5 intr.r_clk = ~intr.r_clk;
+  always #10 intr.r_clk = ~intr.r_clk;
 
 
   initial begin
     intr.w_rst = 1; 
     intr.r_rst = 1;
-    intr.w_en = 0;
-    intr.r_en = 0;
+    
     #20 intr.w_rst = 0; intr.r_rst = 0;
     
     $dumpfile("Asynchronous FIFO.vcd");
