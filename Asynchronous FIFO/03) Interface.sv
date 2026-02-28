@@ -29,7 +29,7 @@ interface asyn_fifo #(parameter DEPTH = 8, WIDTH = 8);
     
     // Read the data for monitor
   clocking rd_cb1 @(posedge r_clk);
-        default input #1ns;
+        default input #1ns; 
         input  data_out, empty, r_rst, r_en;     
     endclocking
   
