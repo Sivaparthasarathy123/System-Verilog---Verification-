@@ -1,4 +1,4 @@
-// Asynchronous FIFO - Design
+// Aysunchronous FIFO
 module Asynchronous_fifo #(parameter DEPTH = 8, WIDTH = 8)(
     input w_clk, r_clk,
     input w_rst, r_rst,
@@ -7,95 +7,57 @@ module Asynchronous_fifo #(parameter DEPTH = 8, WIDTH = 8)(
     output reg [WIDTH-1:0] data_out,
     output full, empty);
   
-    //Total number of address bits
-    localparam addr = $clog2(DEPTH); 
-    
+    localparam ADDR_WIDTH = $clog2(DEPTH); 
     reg [WIDTH-1:0] mem [0:DEPTH-1];
 
-    //WRITE POINTER
+    reg [ADDR_WIDTH:0] wptr_bin, rptr_bin;
+    reg [ADDR_WIDTH:0] wptr_gray, rptr_gray;
+    reg [ADDR_WIDTH:0] wptr_sync2, rptr_sync2;
+    reg [ADDR_WIDTH:0] wptr_sync1, rptr_sync1;
 
-    reg [addr:0] w_ptr_bin, w_ptr_gray;
-
-	wire [addr:0] w_ptr_bin_next = w_ptr_bin + 1;
-	wire [addr:0] w_ptr_gray_next = (w_ptr_bin_next >> 1) ^ (w_ptr_bin_next);
-
-  always@(posedge w_clk or posedge w_rst)begin
-   	  if(w_rst)begin
-        w_ptr_bin <= 0;
-        w_ptr_gray <= 0;
-     end
-     else if(w_en && !full)begin
-        w_ptr_bin <= w_ptr_bin_next;
-        w_ptr_gray <= w_ptr_gray_next;
-     end
+    // WRITE DOMAIN 
+    always @(posedge w_clk or posedge w_rst) begin
+        if (w_rst) begin
+            wptr_bin  <= 0;
+            wptr_gray <= 0;
+        end else if (w_en && !full) begin
+            wptr_bin  <= wptr_bin + 1;
+            wptr_gray <= ((wptr_bin + 1) >> 1) ^ (wptr_bin + 1);
+            mem[wptr_bin[ADDR_WIDTH-1:0]] <= data_in;
+        end
     end
 
-	//READ POINTER
-
-	reg [addr:0] r_ptr_bin, r_ptr_gray;
-
-	wire [addr:0] r_ptr_bin_next = r_ptr_bin + 1;
-	wire [addr:0] r_ptr_gray_next = (r_ptr_bin_next >> 1) ^ r_ptr_bin_next;
-
-  always@(posedge r_clk or posedge r_rst)begin
-     if(r_rst)begin
-        r_ptr_bin <= 0;
-        r_ptr_gray <= 0;
-     end
-     else if(r_en && !empty)begin
-        r_ptr_bin <= r_ptr_bin_next;
-        r_ptr_gray <= r_ptr_gray_next;
-     end
+    // READ DOMAIN 
+    always @(posedge r_clk or posedge r_rst) begin
+        if (r_rst) begin
+            rptr_bin  <= 0;
+            rptr_gray <= 0;
+            data_out  <= 0;
+        end else if (r_en && !empty) begin
+            rptr_bin  <= rptr_bin + 1;
+            rptr_gray <= ((rptr_bin + 1) >> 1) ^ (rptr_bin + 1);
+            data_out  <= mem[rptr_bin[ADDR_WIDTH-1:0]];
+        end
     end
 
-    // 2 - FF SYNCHRONIZER READ_PTR to WRITE_CLK_DOMAIN
-
-    reg [addr:0] rd_ptr_gray_sync1, rd_ptr_gray_sync2;
-
-   	always@(posedge w_clk)begin
-     if(w_rst)begin
-        rd_ptr_gray_sync1 <= 0;
-        rd_ptr_gray_sync2 <= 0;
-     end
-     else begin
-        rd_ptr_gray_sync1 <= r_ptr_gray;
-        rd_ptr_gray_sync2 <= rd_ptr_gray_sync1;
-      end
-     end
-
-    // 2 - FF SYNCHRONIZER WRITE_PTR to READ_CLK_DOMAIN
-
-    reg [addr:0] wr_ptr_gray_sync1, wr_ptr_gray_sync2;
-
-    always@(posedge r_clk)begin
-      if(r_rst)begin
-        wr_ptr_gray_sync1 <= 0;
-        wr_ptr_gray_sync2 <= 0;
-     end
-     else begin
-        wr_ptr_gray_sync1 <= w_ptr_gray;
-        wr_ptr_gray_sync2 <= wr_ptr_gray_sync1;
-     end
+    // SYNCHRONIZERS (2-Stage) 
+    always @(posedge w_clk or posedge w_rst) begin
+        if (w_rst) 
+        {rptr_sync2, rptr_sync1} <= 0;
+        else       
+        {rptr_sync2, rptr_sync1} <= {rptr_sync1, rptr_gray};
     end
 
-    // WRITE CONDITION
+    always @(posedge r_clk or posedge r_rst) begin
+        if (r_rst)
+        {wptr_sync2, wptr_sync1} <= 0;
+        else
+        {wptr_sync2, wptr_sync1} <= {wptr_sync1, wptr_gray};
+    end
 
-    always@(posedge w_clk)
-      if(w_en && !full)
-      mem[w_ptr_bin[addr-1:0]] <= data_in;
+    // FULL & EMPTY
+    assign empty = (rptr_gray == wptr_sync2);
 
-    // READ CONDITION
-
-    always@(posedge r_clk)
-      if(r_en && !empty)
-        data_out <= mem[r_ptr_bin[addr-1:0]];
-
-    // EMPTY CONDITION
-
-     assign empty = (r_ptr_gray == wr_ptr_gray_sync2);
-
-     // FULL CONDITION
-
-      assign full = (w_ptr_gray_next == {!rd_ptr_gray_sync2 [addr:addr-1], rd_ptr_gray_sync2[addr-2:0]});
+    assign full  = (wptr_gray == {~rptr_sync2[ADDR_WIDTH:ADDR_WIDTH-1], rptr_sync2[ADDR_WIDTH-2:0]});
 
 endmodule
